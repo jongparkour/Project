@@ -1,138 +1,91 @@
+//Solar-Powered Solutions for Efficient Water Distribution
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-// OLED display dimensions
+
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
-#define OLED_RESET    -1
-#define OLED_ADDRESS  0x3C  // Default I2C address
-
-// Initialize OLED display
+#define OLED_RESET -1
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-// Pin Definitions
-#define RELAY_PIN         2
-#define WATER_LEVEL_PIN   A0
-#define TURBIDITY_PIN     A1
 
-// Thresholds
-#define WATER_LEVEL_ON_THRESHOLD 50
-#define WATER_LEVEL_OFF_THRESHOLD 450
-#define TURBIDITY_ON_THRESHOLD 800  // Turbidity threshold for turning pump on
-#define TURBIDITY_OFF_THRESHOLD 790
+// Define the I2C address for the OLED display
+#define SSD1306_I2C_ADDRESS 0x3C  // or 0x3D depending on your display
 
 
-// Function Prototypes
-int getAverageReading(int pin, int samples = 10);
-void scrollIntroMessage(String message);
-void displaySensorData(int waterLevel, int turbidity, bool pumpOn);
+#define RELAY_PIN 2
+#define WATER_LEVEL_PIN A0
+#define TURBIDITY_PIN A1
+
+
+#define THRESHOLD 100  // Set your desired threshold value for water level
+#define ACCEPTABLE_LEVEL 200  // Set your desired acceptable turbidity level
+
 
 void setup() {
-  Serial.begin(9600);
-  delay(1); // Let serial and sensors settle
-
-  pinMode(RELAY_PIN, OUTPUT); 
-  digitalWrite(RELAY_PIN, LOW); // Ensure pump is OFF initially
-
-  Serial.println("Starting sensor reading...");
-  int waterLevel = analogRead(WATER_LEVEL_PIN);
-  Serial.println(waterLevel);
-
-
-  if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDRESS)) {
-    Serial.println(F("OLED allocation failed"));
-    while (1); // Halt on error
-  }
-
+  pinMode(RELAY_PIN, OUTPUT);
+ 
+  // Initialize OLED display
+  display.begin(SSD1306_I2C_ADDRESS, OLED_RESET);
   display.clearDisplay();
-  display.setTextColor(SSD1306_WHITE);
-
-  scrollIntroMessage("JESBRIL");
+ 
+  // Display welcome message with transition effect
+  welcomeMessage();
 }
+
 
 void loop() {
-  // Read and average sensor data
-  int waterLevel = getAverageReading(WATER_LEVEL_PIN);
-  int turbidity = getAverageReading(TURBIDITY_PIN);
-
-  // Pump control logic:
-  // - Turn ON pump if water level is below 50 and turbidity is 655 (clean water)
-  // - Turn OFF pump if water level is above 450 and turbidity is 500 (moderately dirty water)
-  bool pumpOn = false; // Default to  pump off
-
-  if (waterLevel < WATER_LEVEL_ON_THRESHOLD && turbidity >= TURBIDITY_ON_THRESHOLD) {
-    pumpOn = true; // Turn pump on if water level < 50 and turbidity == 655 (clean water)
-  } else if (waterLevel > WATER_LEVEL_OFF_THRESHOLD && turbidity <= TURBIDITY_OFF_THRESHOLD) {
-    pumpOn = false; // Turn pump off if water level > 450 and turbidity >= 500 (moderately dirty water)
+  int waterLevel = analogRead(WATER_LEVEL_PIN);
+  int turbidity = analogRead(TURBIDITY_PIN);
+ 
+  // Logic to control the pump based on sensor readings
+  if (waterLevel < THRESHOLD && turbidity < ACCEPTABLE_LEVEL) {
+    digitalWrite(RELAY_PIN, HIGH); // Turn on pump
+  } else {
+    digitalWrite(RELAY_PIN, LOW); // Turn off pump
   }
-
-  digitalWrite(RELAY_PIN, pumpOn ? HIGH : LOW);
-  Serial.print("Water Level: "); Serial.print(waterLevel);  
-  Serial.print(" | Turbidity: "); Serial.print(turbidity);
-  Serial.print(" | Pump: "); Serial.println(pumpOn ? "ON" : "OFF");
-
-  // Update display
-  displaySensorData(waterLevel, turbidity, pumpOn);
-
-  delay(5); // Update every second
+ 
+  // Update OLED display with sensor readings
+  displaySensorData(waterLevel, turbidity);
 }
 
-// Smooth sensor data by averaging multiple samples
-int getAverageReading(int pin, int samples) {
-  long sum = 0;
-  for (int i = 0; i < samples; i++) {
-    sum += analogRead(pin);
-    delay(5); // Small delay between reads
-  }
-  return sum / samples;
-}
 
-// Scroll an introductory message across the screen
-void scrollIntroMessage(String message) {
-  int messageWidth = message.length() * 10; // Approx. width per character
+void welcomeMessage() {
   display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 10);
+  display.println("Solar-Powered Solutions for Efficient Water Distribution");
+  display.display();
+  delay(2000); // Display for 2 seconds
 
-  // Scroll the message while continuously updating sensor data
-  unsigned long startTime = millis();  // Capture the starting time
-  while (millis() - startTime < 2000) {  // Show the message for 2 seconds
-    for (int i = SCREEN_WIDTH; i > -messageWidth; i--) {
-      display.clearDisplay();
-      display.setCursor(i, 0);
-      display.print(message);
-      display.display();
-      delay(20); // Scrolling speed
-    }
+
+  // Transition effect: Fade out
+  for (int i = 255; i >= 0; i -= 5) {
+    display.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, BLACK);
+    display.setTextColor(WHITE);
+    display.setCursor(0, 10);
+    display.println("Welcome!");
+    display.setTextColor(i); // Change text color to create fade effect
+    display.display();
+    delay(20);
   }
-
-  // After the scrolling is done, continue with the sensor display
+ 
   display.clearDisplay();
-  display.setTextSize(2);  // Set larger text size for the readings
 }
 
-void displaySensorData(int waterLevel, int turbidity, bool pumpOn) {    
+
+void displaySensorData(int waterLevel, int turbidity) {
   display.clearDisplay();
-  display.setTextSize(2.5);
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
   display.setCursor(0, 0);
-
-  // Convert water level to percentage (8-555 -> 0-100%)
-  int waterPercent = map(waterLevel, 10, 540, 0, 105);  // Map from sensor range (8-555) to 0-100%
-  waterPercent = constrain(waterPercent, 0, 105); // Constrain to make sure it stays within 0-100%
-
-  // Convert turbidity to percentage with adjusted mapping (300 to 850 for turbidity)
-  int turbidityPercent = map(turbidity, 655, 15, 0, 100); // 850 = clean (0%), 300 = dirty (100%)
-  turbidityPercent = constrain(turbidityPercent, 0, 100);
-
-  display.print("Water: ");
-  display.print(waterPercent);
-  display.println("%");
-  
-  display.print("Turb: ");
-  display.print(turbidityPercent);
-  display.println("%");
-
-  display.print("Pump: ");
-  display.println(pumpOn ? "ON" : "OFF");
-
+ 
+  display.print("Water Level: ");
+  display.println(waterLevel);
+ 
+  display.print("Turbidity: ");
+  display.println(turbidity);
+ 
   display.display();
 }
