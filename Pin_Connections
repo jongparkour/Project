@@ -1,0 +1,75 @@
+*****Solar-Powered Solutions for Efficient Water Distribution*****
+
+PIN Connections
+
+Arduino UNO:
+
+	RELAY_PIN: Connect to pin D2 on the Arduino. This pin controls the relay that turns the water pump on and off.
+	WATER_LEVEL_PIN: Connect to pin A0 on the Arduino. This pin reads the output from the water level sensor.
+	TURBIDITY_PIN: Connect to pin A1 on the Arduino. This pin reads the output from the turbidity sensor.
+
+1 Channel Relay 5V:
+
+	IN: Connect to pin D2 on the Arduino (this is the same as the RELAY_PIN).
+	VCC: Connect to the 5V pin on the Arduino.
+	GND: Connect to the GND pin on the Arduino.
+	COM: Connect to the positive pin of the water pump.
+	NO: Connect to the negative pin of the water pump.
+
+Water Level Sensor:
+
+	SIG: Connect to pin A0 on the Arduino (this is the same as the WATER_LEVEL_PIN).
+	VCC: Connect to the 5V pin on the Arduino.
+	GND: Connect to the GND pin on the Arduino.
+
+Turbidity Sensor:
+
+	OUT: Connect to pin A1 on the Arduino (this is the same as the TURBIDITY_PIN).
+	VCC: Connect to the 5V pin on the Arduino.
+	GND: Connect to the GND pin on the Arduino.
+
+5V Mini Water Pump:
+
+	Positive Pin: Connect to the COM pin of the relay.
+	Negative Pin: Connect to the NO pin of the relay.
+
+OLED Display (0.96" OLED):
+
+	SDA: Connect to the SDA pin on the Arduino (typically A4 on the UNO).
+	SCK: Connect to the SCL pin on the Arduino (typically A5 on the UNO).
+	VDD: Connect to the 5V pin on the Arduino.
+	GND: Connect to the GND pin on the Arduino.
+
+XL4015 5A DC Buck Step-down:
+
+	Input +: Connect to the output of the solar panel (VCC).
+	Input -: Connect to the ground of the solar panel (GND).
+	Output +: Connect to the Vin pin of the Arduino.
+	Output -: Connect to the GND pin of the Arduino.
+
+Solar Panel:
+
+	VCC: Connect to the Input + of the XL4015.
+	GND: Connect to the Input - of the XL4015.
+
+Summary of Connections:
+
+	Arduino D2 → Relay IN
+	Arduino A0 → Water Level Sensor SIG
+	Arduino A1 → Turbidity Sensor OUT
+	Relay VCC → Arduino 5V
+	Relay GND → Arduino GND
+	Water Level Sensor VCC → Arduino 5V
+	Water Level Sensor GND → Arduino GND
+	Turbidity Sensor VCC → Arduino 5V
+	Turbidity Sensor GND → Arduino GND
+	Relay COM → Water Pump Positive Pin
+	Relay NO → Water Pump Negative Pin
+	OLED SDA → Arduino A4
+	OLED SCK → Arduino A5
+	OLED VDD → Arduino 5V
+	OLED GND → Arduino GND
+	XL4015 Input + → Solar Panel VCC
+	XL4015 Input - → Solar Panel GND
+	XL4015 Output + → Arduino Vin
+	XL4015 Output - → Arduino GND
