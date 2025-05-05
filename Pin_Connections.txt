@@ -28,7 +28,7 @@ Turbidity Sensor:
 	VCC: Connect to the 5V pin on the Arduino.
 	GND: Connect to the GND pin on the Arduino.
 
-5V Mini Water Pump:
+12V Mini Water Pump:
 
 	Positive Pin: Connect to the COM pin of the relay.
 	Negative Pin: Connect to the NO pin of the relay.
