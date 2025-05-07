@@ -59,16 +59,7 @@
 
 ## 🔌 Wiring Diagram
 
-📷 *(Insert wiring diagram image here - Fritzing or schematic)*
-
-**Key Connections:**
-- OLED SDA → A4, SCL → A5
-- Relay IN → D7
-- Water Sensor → D8
-- Turbidity Sensor → A0
-- Pump Power → Relay-controlled output
-
----
+![image](https://github.com/user-attachments/assets/014f5b1b-7241-400a-981f-572916c7532f)
 
 ## 📊 How It Works
 
@@ -113,7 +104,7 @@ This project is open-source and available under the [MIT License](LICENSE).
 
 ## 📷 Media
 
-*(Optional: Add photos or videos of your working prototype here)*
+![image](https://github.com/user-attachments/assets/6603edcb-6a3e-4e8d-9b13-27a70fda499c)
 
 ---
 
